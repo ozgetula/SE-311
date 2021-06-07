@@ -1,49 +1,40 @@
 package Project;
-
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import javax.naming.LimitExceededException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Test
 {
+    // Maximum number of threads in thread pool
+    static final int MAX_T = 6;
+
     public static void main(String[] args)
     {
-        Integer threadCounter = 0;
-        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(10);
 
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(10,
-                10, 5000, TimeUnit.MILLISECONDS, blockingQueue);
 
-        executor.setRejectedExecutionHandler(new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r,
-                                          ThreadPoolExecutor executor) {
-                System.out.println("DemoTask Rejected : "
-                        + ((Thread_Pool) r).getName());
-                System.out.println("Waiting for a second !!");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Lets add another time : "
-                        + ((Thread_Pool) r).getName());
-                executor.execute(r);
-            }
-        });
-        // Let start all core threads initially
-        executor.prestartAllCoreThreads();
-        while (true) {
-            threadCounter++;
-            // Adding threads one by one
-            System.out.println("Adding DemoTask : " + threadCounter);
-            executor.execute(new Thread_Pool(threadCounter.toString()));
+            Runnable h1 = new Thread_Pool("HThread");
+            Runnable l2 = new Thread_Pool("LThread");
+            Runnable h3 = new Thread_Pool("HThread");
+            Runnable l4 = new Thread_Pool("LThread");
+            Runnable l5 = new Thread_Pool("LThread");
+            Runnable l6 = new Thread_Pool("LThread");
 
-            if (threadCounter == 10)
-                break;
-        }
+            // creates a thread pool with MAX_T no. of
+            // threads as the fixed pool size(Step 2)
+            ExecutorService pool = Executors.newFixedThreadPool(MAX_T);
+
+            // passes the Task objects to the pool to execute (Step 3)
+            pool.execute(h1);
+            pool.execute(l2);
+            pool.execute(h3);
+            pool.execute(l4);
+            pool.execute(l5);
+            pool.execute(l6);
+
+            // pool shutdown ( Step 4)
+            pool.shutdown();
+
+        // creates five tasks
+
     }
-
 }
